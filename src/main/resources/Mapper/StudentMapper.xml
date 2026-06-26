@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.spwork.mapper.StudentMapper">
+    <insert id="insertStudent">
+        insert into student (stu_no,stu_psd,stu_name) values (#{stuNo},#{stuPsd},#{stuName})
+    </insert>
+
+    <select id="getByUserNameAndPassword" parameterType="com.example.spwork.entity.Student" resultType="com.example.spwork.entity.Student">
+        select *
+        from student
+        where stu_no = #{stuNo}
+          and stu_psd = #{stuPsd}
+    </select>
+    <select id="selectByNo" resultType="com.example.spwork.entity.Student">
+        select *
+            from student
+            where stu_no = #{stuNo}
+    </select>
+    <update id="updateStudent" parameterType="com.example.spwork.entity.Student">
+        UPDATE student
+        <set>
+            <if test="stuName != null">stu_name = #{stuName},</if>
+            <if test="stuNo != null">stu_no = #{stuNo},</if>
+            <if test="stuPsd != null">stu_psd = #{stuPsd},</if>
+        </set>
+        WHERE stu_id = #{stuId}
+    </update>
+
+</mapper>

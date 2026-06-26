@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.spwork.mapper.CourseSelectionMapper">
+    <insert id="insertCS">
+        insert into courseselection (course_id, stu_id) values (#{courseId}, #{stuId})
+    </insert>
+    <select id="selectById" resultType="com.example.spwork.entity.CourseSelection">
+        select *
+        from courseselection
+        where course_id = #{courseId} and
+              stu_id = #{stuId}
+    </select>
+
+    <delete id="cancelCourse" parameterType="map">
+        DELETE FROM courseselection
+        WHERE course_id = #{courseId}
+          AND stu_id = #{stuId}
+    </delete>
+
+</mapper>

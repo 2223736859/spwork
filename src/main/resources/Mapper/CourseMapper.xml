@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.spwork.mapper.CourseMapper">
+    <resultMap id="CourseResultMap" type="com.example.spwork.entity.Course">
+        <id property="courseId" column="course_id" />
+        <result property="name" column="name" />
+        <result property="teacher" column="teacher" />
+    </resultMap>
+
+    <select id="getAllCourses" resultMap="CourseResultMap">
+        select * from course
+    </select>
+
+    <select id="getOneCourse" resultMap="CourseResultMap">
+        SELECT c.name, c.teacher,c.course_id
+                     FROM courseselection cs
+                     JOIN course c ON cs.course_id = c.course_id
+                     WHERE cs.stu_id = #{selectId};
+    </select>
+    <select id="searchCourses" resultType="com.example.spwork.entity.Course">
+        SELECT * FROM course
+        <where>
+            <if test="dto.name != null">
+                AND name LIKE CONCAT('%', #{dto.name}, '%')
+            </if>
+            <if test="dto.teacher != null">
+                AND teacher LIKE CONCAT('%', #{dto.teacher}, '%')
+            </if>
+        </where>
+
+    </select>
+
+</mapper>
