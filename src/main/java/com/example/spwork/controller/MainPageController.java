@@ -62,7 +62,6 @@ public class MainPageController {
     @PostMapping("student/update")
     //@Transactional(Exception =)
     public Response<StudentVo> updateStudent(@Valid@RequestBody StudentUpdataDto dto) {
-        StudentVo vo1 = studentService.updata(dto);
         StudentVo vo2 = studentService.updata(dto);
         return Response.success(vo2);
     }
