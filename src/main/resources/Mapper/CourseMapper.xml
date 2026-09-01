@@ -17,6 +17,7 @@
                      JOIN course c ON cs.course_id = c.course_id
                      WHERE cs.stu_id = #{selectId};
     </select>
+
     <select id="searchCourses" resultType="com.example.spwork.entity.Course">
         SELECT * FROM course
         <where>
@@ -27,7 +28,6 @@
                 AND teacher LIKE CONCAT('%', #{dto.teacher}, '%')
             </if>
         </where>
-
     </select>
 
 </mapper>

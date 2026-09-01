@@ -9,20 +9,26 @@ import com.example.spwork.mapper.StudentMapper;
 import com.example.spwork.service.StudentService;
 import com.example.spwork.vo.StudentVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class StudentServiceImpl implements StudentService {
     @Autowired
     StudentMapper studentMapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public StudentVo login(StudentLoginDto dto){
         Student student = studentMapper.selectByNo(dto.getStuNo());
         if (student == null) {
             throw new BusinessException(400, "账号或密码错误");
         }
-        if (!dto.getStuPsd().equals(student.getStuPsd())){
-            throw new BusinessException(400,"账号密码错误");
+        // 用 BCrypt 校验明文密码与库中密文是否匹配
+        if (!passwordEncoder.matches(dto.getStuPsd(), student.getStuPsd())){
+            throw new BusinessException(400,"账号或密码错误");
         }
             //转化为VO
             StudentVo vo = new StudentVo();
@@ -43,7 +49,8 @@ public class StudentServiceImpl implements StudentService {
         Student student = new Student();
         student.setStuName(dto.getStuName());
         student.setStuNo(dto.getStuNo());
-        student.setStuPsd(dto.getStuPsd());
+        // 密码加密后再入库
+        student.setStuPsd(passwordEncoder.encode(dto.getStuPsd()));
 
         //插入数据库
         studentMapper.insertStudent(student);
@@ -66,9 +73,13 @@ public class StudentServiceImpl implements StudentService {
 
         Student student = new Student();
         student.setStuId(dto.getStuId());
-        student.setStuPsd(dto.getStuPsd());
         student.setStuName(dto.getStuName());
         student.setStuNo(dto.getStuNo());
+        // 仅当传入新密码时才更新（加密存储），否则保留原密码
+        String newPsd = dto.getStuPsd();
+        if (newPsd != null && !newPsd.isEmpty()) {
+            student.setStuPsd(passwordEncoder.encode(newPsd));
+        }
 
         studentMapper.updateStudent(student);
 
