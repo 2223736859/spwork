@@ -48,19 +48,5 @@ public class MyCourseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(Response.success("删除成功"));
     }
 
-    /*
-    @DeleteMapping("/students/courses/{courseId}")
-    public ResponseEntity<Response<?>> cancelCourse(
-            @PathVariable Integer courseId) {
-
-        Integer stuId = CurrentUser.getStuId(); // 从登录信息取
-        courseService.removeCourse(stuId, courseId);
-
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body(Response.success("退课成功"));
-    }
-
-     */
 }
 
