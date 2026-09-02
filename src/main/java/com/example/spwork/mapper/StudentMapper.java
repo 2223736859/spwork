@@ -11,5 +11,10 @@ public interface StudentMapper {
 
     Student selectByNo(String stuNo);
 
+    /**
+     * 按主键 stuId 查询学生（用于从 Token 取 stuId 后查询）
+     */
+    Student selectById(Integer stuId);
+
     int updateStudent(Student student);
 }

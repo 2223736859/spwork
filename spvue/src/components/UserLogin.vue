@@ -99,10 +99,16 @@ export default {
           .then(response => {
             const result = response.data;
             if (result.code === 200) {
-              // 登录成功，跳转到MainPage.vue页面
-              // 登录成功后保存用户信息
-              localStorage.setItem('currentUser', JSON.stringify(response.data.data));
-              console.log(response.data);
+              const data = result.data;
+              // 保存 JWT 令牌（请求拦截器会自动携带到 Authorization 头）
+              localStorage.setItem('token', data.token);
+              // 保存用户基本信息用于页面展示（不存 token、不存密码）
+              localStorage.setItem('currentUser', JSON.stringify({
+                stuId: data.stuId,
+                stuNo: data.stuNo,
+                stuName: data.stuName
+              }));
+              console.log('登录成功，用户信息：', data);
               this.$message.success('登录成功');
               this.$router.push('/MainPage');
             } else {
@@ -115,8 +121,6 @@ export default {
             // 处理登录失败的情况
             console.error(error);
           });
-
-
     }
   }
 };

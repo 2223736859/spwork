@@ -1,6 +1,5 @@
 package com.example.spwork.service.impl;
 
-import com.example.spwork.dto.CourseInsertDto;
 import com.example.spwork.entity.CourseSelection;
 import com.example.spwork.exception.BusinessException;
 import com.example.spwork.mapper.CourseSelectionMapper;
@@ -18,12 +17,13 @@ public class CourseSelectionServiceImpl implements CourseSelectionService{
     }
 
     @Override
-    public void insertCS(CourseInsertDto dto) {
-        CourseSelection exist = courseSelectionMapper.selectById(dto.getCourseId(),dto.getStuId());
+    public void insertCS(Integer courseId, Integer stuId) {
+        // 用 Token 里的 stuId 查重，防止用户篡改前端参数替别人选课
+        CourseSelection exist = courseSelectionMapper.selectById(courseId, stuId);
         if (exist != null){
             throw new BusinessException(400,"你已经选过该课程");
         }
 
-        courseSelectionMapper.insertCS(dto.getCourseId(),dto.getStuId());
+        courseSelectionMapper.insertCS(courseId, stuId);
     }
 }

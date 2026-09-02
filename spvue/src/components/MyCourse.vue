@@ -5,12 +5,14 @@
       <p>用户名：{{ currentUser.stuName }}</p>
       <p>学号：{{ currentUser.stuNo }}</p>
     </div>
+    <el-button @click="goBack">返回选课</el-button>
     <el-table :data="coursesselcet" :header-cell-style="{ background: '#f2f5fc' }" border>
       <el-table-column prop="name" label="课程名称" width="120"></el-table-column>
       <el-table-column prop="teacher" label="授课老师" width="120"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button @click="cancelCourse(scope.row.courseId, currentUser.stuId)" size="small" type="danger">退课</el-button>
+          <!-- stuId 不再前端传参，由后端从 JWT Token 中获取 -->
+          <el-button @click="cancelCourse(scope.row.courseId)" size="small" type="danger">退课</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -19,6 +21,7 @@
 
 <script>
 import axios from "axios";
+import router from "@/router";
 
 export default {
   name: "MyCourse",
@@ -33,11 +36,9 @@ export default {
     }
   },
   methods: {
+    // 查询已选课程：stuId 由后端从 JWT Token 中获取，前端不传
     fetchCourses() {
-      const stuId = this.currentUser.stuId;
-      const url = `http://localhost:8090/courseselection/list?selectId=${stuId}`;
-
-      axios.get(url)
+      axios.get('http://localhost:8090/courseselection/list')
           .then(response => {
             const result = response.data;
             if (result.code === 200) {
@@ -50,28 +51,27 @@ export default {
             console.error(error);
           });
     },
-    cancelCourse(courseId, stuId) {
-      console.log(courseId);
-      console.log(stuId);
-      const url = `http://localhost:8090/courseselection/cancel/${courseId}?stuId=${stuId}`;
+    // 退课：只传 courseId，stuId 由后端从 JWT Token 中获取
+    cancelCourse(courseId) {
+      const url = `http://localhost:8090/courseselection/cancel/${courseId}`;
 
       axios.delete(url)
           .then(response => {
             const result = response.data;
             if (result.code === 200) {
-              const index = this.coursesselcet.findIndex(c => c.id === courseId);
-              if (index !== -1) {
-                this.coursesselcet.splice(index, 1);
-              }
-              console.log("退课成功");
+              this.$message.success("退课成功");
               this.fetchCourses();
             } else {
-              console.error(result.msg);
+              this.$message.error(result.msg || "退课失败");
             }
           })
           .catch(error => {
             console.error(error);
+            this.$message.error("退课失败，请重试");
           });
+    },
+    goBack() {
+      router.push('/MainPage');
     }
   },
   computed: {

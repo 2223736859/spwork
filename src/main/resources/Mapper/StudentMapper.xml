@@ -16,6 +16,13 @@
             from student
             where stu_no = #{stuNo}
     </select>
+
+    <select id="selectById" resultType="com.example.spwork.entity.Student">
+        select *
+        from student
+        where stu_id = #{stuId}
+    </select>
+
     <update id="updateStudent" parameterType="com.example.spwork.entity.Student">
         UPDATE student
         <set>

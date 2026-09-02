@@ -1,7 +1,6 @@
 package com.example.spwork.controller;
 
-import com.example.spwork.entity.Course;
-import com.example.spwork.entity.CourseSelection;
+import com.example.spwork.context.UserContext;
 import com.example.spwork.entity.Response;
 import com.example.spwork.service.CourseSelectionService;
 import com.example.spwork.service.CourseService;
@@ -13,9 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 public class MyCourseController {
     @Autowired
@@ -26,27 +23,22 @@ public class MyCourseController {
     private CourseSelectionService courseSelectionService;
 
     /**
-     * 查询个人已选课程
-     * @param selectId
-     * @return
+     * 查询个人已选课程：stuId 从 JWT Token 中获取，用户无法查看别人的选课
      */
     @GetMapping("/courseselection/list")
-    public Response<List<CourseVo>> getCourses(@RequestParam("selectId") Integer selectId) {
-        List<CourseVo> courseVos = courseService.getOneCourse(selectId);
+    public Response<List<CourseVo>> getCourses() {
+        Integer stuId = UserContext.getStuId();
+        List<CourseVo> courseVos = courseService.getOneCourse(stuId);
         return Response.success(courseVos);
     }
 
     /**
-     * 删除已选课程
-     * @param courseId
-     * @param stuId
-     * @return
+     * 删除已选课程（退课）：stuId 从 JWT Token 中获取，防止越权退别人的课
      */
     @DeleteMapping("/courseselection/cancel/{courseId}")
-    public ResponseEntity<Response<?>> cancelCourse(@PathVariable("courseId") int courseId, @RequestParam("stuId") int stuId) {
-        courseService.delcourse(courseId,stuId);
+    public ResponseEntity<Response<?>> cancelCourse(@PathVariable("courseId") int courseId) {
+        Integer stuId = UserContext.getStuId();
+        courseService.delcourse(courseId, stuId);
         return ResponseEntity.status(HttpStatus.CREATED).body(Response.success("删除成功"));
     }
-
 }
-

@@ -65,14 +65,15 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public StudentVo updata(StudentUpdataDto dto) {
-        Student extion = studentMapper.selectByNo(dto.getStuNo());
+    public StudentVo updata(Integer stuId, StudentUpdataDto dto) {
+        // 用 Token 里的 stuId 按主键查询，不再信任前端传的学号
+        Student extion = studentMapper.selectById(stuId);
         if (extion == null){
             throw new BusinessException(400,"账号不存在");
         }
 
         Student student = new Student();
-        student.setStuId(dto.getStuId());
+        student.setStuId(stuId);  // 用 Token 里的 stuId，防止越权修改别人资料
         student.setStuName(dto.getStuName());
         student.setStuNo(dto.getStuNo());
         // 仅当传入新密码时才更新（加密存储），否则保留原密码
@@ -83,11 +84,10 @@ public class StudentServiceImpl implements StudentService {
 
         studentMapper.updateStudent(student);
 
-        Student updated = studentMapper.selectByNo(dto.getStuNo());
         StudentVo vo = new StudentVo();
         vo.setStuNo(dto.getStuNo());
         vo.setStuName(dto.getStuName());
-        vo.setStuId(dto.getStuId());
+        vo.setStuId(stuId);
 
         return vo;
     }

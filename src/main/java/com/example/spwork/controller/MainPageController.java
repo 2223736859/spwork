@@ -1,12 +1,10 @@
 package com.example.spwork.controller;
 
+import com.example.spwork.context.UserContext;
 import com.example.spwork.dto.CourseInsertDto;
 import com.example.spwork.dto.CourseSearchDto;
 import com.example.spwork.dto.StudentUpdataDto;
-import com.example.spwork.entity.Course;
-import com.example.spwork.entity.CourseSelection;
 import com.example.spwork.entity.Response;
-import com.example.spwork.entity.Student;
 import com.example.spwork.service.CourseSelectionService;
 import com.example.spwork.service.CourseService;
 import com.example.spwork.service.StudentService;
@@ -17,11 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
-@CrossOrigin(origins = "http://localhost:8080")
+
 @RestController
 public class MainPageController {
     @Autowired
@@ -33,7 +29,6 @@ public class MainPageController {
 
     /**
      * 展示课程
-     * @return
      */
     @GetMapping("course/list")
     public Response<List<CourseVo>> getAllCourses() {
@@ -42,34 +37,29 @@ public class MainPageController {
     }
 
     /**
-     * 选课
-     * @param dto
-     * @return
+     * 选课：stuId 从 JWT Token 中获取，不信任前端传参（防越权）
      */
     @PostMapping("courseselection/insert")
     public ResponseEntity<Response<?>> insertCourseSelection(@Valid @RequestBody CourseInsertDto dto) {
-        courseSelectionService.insertCS(dto);
+        Integer stuId = UserContext.getStuId();
+        courseSelectionService.insertCS(dto.getCourseId(), stuId);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(Response.success("选课成功"));
     }
 
     /**
-     * 修改个人信息
-     * @param dto
-     * @return
+     * 修改个人信息：stuId 从 JWT Token 中获取，防止越权修改别人资料
      */
     @PostMapping("student/update")
-    //@Transactional(Exception =)
-    public Response<StudentVo> updateStudent(@Valid@RequestBody StudentUpdataDto dto) {
-        StudentVo vo2 = studentService.updata(dto);
+    public Response<StudentVo> updateStudent(@Valid @RequestBody StudentUpdataDto dto) {
+        Integer stuId = UserContext.getStuId();
+        StudentVo vo2 = studentService.updata(stuId, dto);
         return Response.success(vo2);
     }
 
     /**
      * 模糊查询课程
-     * @param dto
-     * @return
      */
     @GetMapping("course/search")
     public Response<List<CourseVo>> searchCourses(CourseSearchDto dto){
@@ -78,4 +68,3 @@ public class MainPageController {
     }
 
 }
-

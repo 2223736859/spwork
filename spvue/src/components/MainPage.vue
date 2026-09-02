@@ -20,26 +20,23 @@
 
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button size="small" type="success" @click="selectCourse(scope.row.courseId,currentUser.stuId)">选课</el-button>
+          <!-- stuId 不再前端传参，由后端从 JWT Token 中获取 -->
+          <el-button size="small" type="success" @click="selectCourse(scope.row.courseId)">选课</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <el-dialog title="个人信息" :visible="profileDialogVisible" @close="profileDialogVisible = false">
       <el-form :model="profileForm" label-width="80px">
-<!--        <el-form-item label="ID">-->
-<!--          <el-input v-model="profileForm.stuId" :disabled="!isEditing"></el-input>-->
-<!--        </el-form-item>-->
         <el-form-item label="用户名">
           <el-input v-model="profileForm.stuName" :disabled="!isEditing"></el-input>
         </el-form-item>
         <el-form-item label="学号">
           <el-input v-model="profileForm.stuNo" :disabled="!isEditing"></el-input>
         </el-form-item>
-        <el-form-item label="密码">
-          <el-input v-model="profileForm.stuPsd" :disabled="!isEditing"></el-input>
+        <el-form-item label="新密码">
+          <el-input v-model="profileForm.stuPsd" :disabled="!isEditing" placeholder="不修改请留空"></el-input>
         </el-form-item>
-        <!-- 添加其他个人信息字段的显示和编辑输入框 -->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancelEdit">取消</el-button>
@@ -106,13 +103,12 @@ export default {
         this.profileForm.stuName = currentUser.stuName;
         this.profileForm.stuNo = currentUser.stuNo;
         this.profileForm.stuId = currentUser.stuId;
-        this.profileForm.stuPsd = currentUser.stuPsd;
+        this.profileForm.stuPsd = '';
       }
     },
-    selectCourse(courseId, stuId) {
-      console.log(courseId);
-      console.log(stuId);
-      axios.post('http://localhost:8090/courseselection/insert', { courseId, stuId })
+    // 选课：只传 courseId，stuId 由后端从 JWT Token 中获取
+    selectCourse(courseId) {
+      axios.post('http://localhost:8090/courseselection/insert', { courseId })
           .then(response => {
             console.log(response.data);
             if (response.data.code === 200) {
@@ -143,16 +139,21 @@ export default {
       this.fetchCurrentUser();
     },
     saveProfile() {
-      // 发送更新个人信息的请求
-      axios.post('http://localhost:8090/student/update', this.profileForm)
+      // 发送更新个人信息的请求（stuId 由后端从 Token 取，前端不传）
+      axios.post('http://localhost:8090/student/update', {
+        stuName: this.profileForm.stuName,
+        stuNo: this.profileForm.stuNo,
+        stuPsd: this.profileForm.stuPsd
+      })
           .then(response => {
             const result = response.data;
             if (result.code === 200) {
               this.$message.success('个人信息保存成功');
               this.isEditing = false;
-              // 更新当前用户信息
+              // 更新当前用户信息（同步 localStorage）
               this.currentUser.stuName = this.profileForm.stuName;
               this.currentUser.stuNo = this.profileForm.stuNo;
+              localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
               // 关闭弹窗
               this.profileDialogVisible = false;
             } else {
